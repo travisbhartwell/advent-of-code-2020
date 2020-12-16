@@ -1,0 +1,5 @@
+.venv
+.vscode
+Cargo.lock
+*/target/*
+/01/day01
