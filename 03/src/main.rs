@@ -1,6 +1,7 @@
-use std::{fmt::Display, path::Path};
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::{fmt::Display, path::Path};
+
 #[derive(Debug)]
 struct TreeInLocation(bool);
 #[derive(Debug)]
@@ -42,23 +43,30 @@ impl Display for TreeInLocation {
 struct TreePlacementMap {
     map_data: Vec<Vec<TreeInLocation>>,
     width: usize,
-    height: usize
+    height: usize,
 }
 
 impl TreePlacementMap {
     fn new(map_data: Vec<Vec<TreeInLocation>>) -> TreePlacementMap {
-        let row_widths= map_data.iter().map(Vec::len).collect::<Vec<usize>>();
+        let row_widths = map_data.iter().map(Vec::len).collect::<Vec<usize>>();
         // Borrowed from https://sts10.github.io/2019/06/06/is-all-equal-function.html
-        let all_same = row_widths.get(0).map(|first| row_widths.iter().all(|x| x == first)).unwrap_or(true);
+        let all_same = row_widths
+            .get(0)
+            .map(|first| row_widths.iter().all(|x| x == first))
+            .unwrap_or(true);
 
-        if ! all_same {
+        if !all_same {
             panic!("Rows are not all the same.");
-        } 
+        }
 
         let width = *row_widths.get(0).unwrap();
         let height = map_data.len();
 
-        TreePlacementMap { map_data, width, height }
+        TreePlacementMap {
+            map_data,
+            width,
+            height,
+        }
     }
 
     fn tree_in_location(&self, x: usize, y: usize) -> Result<bool, &str> {
@@ -117,20 +125,20 @@ fn get_contents(input_filename: &Path) -> Result<TreePlacementMap, &str> {
     });
 
     let map_data: TreePlacementMap = contents.parse().unwrap();
-    Ok(map_data) 
+    Ok(map_data)
 }
 
 fn count_trees_in_path(tree_map: &TreePlacementMap, step_x: usize, step_y: usize) -> i32 {
     let mut count: i32 = 0;
 
-    let mut x: usize = 0; 
+    let mut x: usize = 0;
     let mut y: usize = 0;
 
     loop {
         match tree_map.tree_in_location(x, y) {
             Ok(true) => count += 1,
             Ok(false) => (),
-            Err(_) => return count
+            Err(_) => return count,
         }
 
         x += step_x;
@@ -156,8 +164,11 @@ fn main() {
     let tree_count = count_trees_in_path(&map_data, step_x, step_y);
     println!("PART 1: Found {} trees in the path.", tree_count);
 
-    let slopes: Vec<(usize, usize)> = vec!{(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)};
+    let slopes: Vec<(usize, usize)> = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
 
-    let count_product: i32 = slopes.iter().map(|(step_x, step_y)| count_trees_in_path(&map_data, *step_x, *step_y)).product();
+    let count_product: i32 = slopes
+        .iter()
+        .map(|(step_x, step_y)| count_trees_in_path(&map_data, *step_x, *step_y))
+        .product();
     println!("PART 2: Product of trees found: {}", count_product);
 }
